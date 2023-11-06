@@ -8,15 +8,27 @@ import ciDetect from 'ci-info';
 import axios from "axios";
 import { checkLatest } from '../api/update';
 import { checkAppExistsAndHasPermissionErr } from "../api/app";
-import { encryptSource } from '../api/crypto';
+import { encryptSourceSodium } from '../api/crypto_sodium';
 import {
   OptionsBase,
-  getConfig, createSupabaseClient,
+  getConfig,
+  createSupabaseClient,
   uploadUrl,
-  updateOrCreateChannel, updateOrCreateVersion,
-  formatError, findSavedKey, checkPlanValid,
-  useLogSnag, verifyUser, regexSemver, baseKeyPub, convertAppName, getLocalConfig, checkCompatibility, requireUpdateMetadata,
-  getLocalDepenencies
+  updateOrCreateChannel,
+  updateOrCreateVersion,
+  formatError,
+  findSavedKey,
+  checkPlanValid,
+  useLogSnag,
+  verifyUser,
+  regexSemver,
+  baseKeyPub,
+  convertAppName,
+  getLocalConfig,
+  checkCompatibility,
+  requireUpdateMetadata,
+  getLocalDepenencies,
+  baseSigningKey
 } from '../utils';
 import { checkIndexPosition, searchInDirectory } from './check';
 
@@ -30,6 +42,8 @@ interface Options extends OptionsBase {
   external?: string
   key?: boolean | string,
   keyData?: string,
+  signingKey?: boolean | string,
+  signingKeyData?: string,
   ivSessionKey?: string,
   bundleUrl?: boolean
   codeCheck?: boolean,
@@ -42,7 +56,7 @@ export const uploadBundle = async (appid: string, options: Options, shouldExit =
   p.intro(`Uploading`);
   await checkLatest();
   let { bundle, path, channel } = options;
-  const { external, key = false, displayIvSession, autoMinUpdateVersion } = options;
+  const { external, key = false, signingKey = false, displayIvSession, autoMinUpdateVersion } = options;
   let { minUpdateVersion } = options
   options.apikey = options.apikey || findSavedKey()
   const snag = useLogSnag()
@@ -205,19 +219,19 @@ export const uploadBundle = async (appid: string, options: Options, shouldExit =
     s.stop(`Checksum: ${checksum}`);
     if (key || existsSync(baseKeyPub)) {
       const publicKey = typeof key === 'string' ? key : baseKeyPub
+      const signingKey = typeof key === 'string' ? key : baseSigningKey
       let keyData = options.keyData || ''
+      let signingKeyData = options.signingKeyData || ''
       // check if publicKey exist
       if (!keyData && !existsSync(publicKey)) {
         p.log.error(`Cannot find public key ${publicKey}`);
-        if (ciDetect.isCI) {
-          program.error('');
-        }
-        const res = await p.confirm({ message: 'Do you want to use our public key ?' })
-        if (!res) {
-          p.log.error(`Error: Missing public key`);
-          program.error('');
-        }
-        keyData = localConfig.signKey || ''
+        p.log.error(`Error: Missing public key`);
+        program.error('');
+      }
+      if (!signingKeyData && !existsSync(signingKey)) {
+        p.log.error(`Cannot find signing key ${signingKey}`);
+        p.log.error(`Error: Missing signing key`);
+        program.error('');
       }
       await snag.track({
         channel: 'app',
@@ -234,9 +248,13 @@ export const uploadBundle = async (appid: string, options: Options, shouldExit =
         const keyFile = readFileSync(publicKey)
         keyData = keyFile.toString()
       }
+      if (!signingKeyData) {
+        const keyFile = readFileSync(signingKey)
+        signingKeyData = keyFile.toString()
+      }
       // encrypt
       p.log.info(`Encrypting your bundle`);
-      const res = encryptSource(zipped, keyData)
+      const res = encryptSourceSodium(zipped, keyData, signingKeyData)
       sessionKey = res.ivSessionKey
       if (displayIvSession) {
         p.log.info(`Your Iv Session key is ${sessionKey},

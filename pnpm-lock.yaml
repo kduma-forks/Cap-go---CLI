@@ -65,6 +65,9 @@ dependencies:
   semver:
     specifier: ^7.5.4
     version: 7.5.4
+  sodium-native:
+    specifier: ^4.0.4
+    version: 4.0.4
 
 devDependencies:
   '@types/adm-zip':
@@ -94,6 +97,9 @@ devDependencies:
   '@types/semver':
     specifier: ^7.5.0
     version: 7.5.4
+  '@types/sodium-native':
+    specifier: ^2.3.8
+    version: 2.3.8
   '@typescript-eslint/eslint-plugin':
     specifier: 5.56.0
     version: 5.56.0(@typescript-eslint/parser@5.56.0)(eslint@8.51.0)(typescript@5.2.2)
@@ -687,6 +693,12 @@ packages:
   /@types/slice-ansi@4.0.0:
     resolution: {integrity: sha512-+OpjSaq85gvlZAYINyzKpLeiFkSC4EsC6IIiT6v6TLSU5k5U83fHGj9Lel8oKEXM0HqgrMVCjXPDPVICtxF7EQ==}
     dev: false
+
+  /@types/sodium-native@2.3.8:
+    resolution: {integrity: sha512-SI+P47SNV8WnsZhfWwCku0gMKCe7+SUVNDereKV8RU1kNs26W5LndhU9+ejUtn7K/qC0+OvnFxGxOmP+VMwD7g==}
+    dependencies:
+      '@types/node': 20.8.7
+    dev: true
 
   /@types/websocket@1.0.8:
     resolution: {integrity: sha512-wvkOpWApbuxVfHhSQ1XrjVN4363vsfLJwEo4AboIZk0g1vJA5nmLp8GXUHuIdf4/Fe7+/V0Efe2HvWiLqHtlqw==}
@@ -3768,6 +3780,13 @@ packages:
       ansi-styles: 4.3.0
       astral-regex: 2.0.0
       is-fullwidth-code-point: 3.0.0
+    dev: false
+
+  /sodium-native@4.0.4:
+    resolution: {integrity: sha512-faqOKw4WQKK7r/ybn6Lqo1F9+L5T6NlBJJYvpxbZPetpWylUVqz449mvlwIBKBqxEHbWakWuOlUt8J3Qpc4sWw==}
+    requiresBuild: true
+    dependencies:
+      node-gyp-build: 4.6.1
     dev: false
 
   /source-map-support@0.5.21:

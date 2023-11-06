@@ -12,6 +12,8 @@ import axios from 'axios';
 
 export const baseKey = '.capgo_key';
 export const baseKeyPub = `${baseKey}.pub`;
+export const baseSigningKey = '.capgo_signing_key';
+export const baseSigningKeyPub = `${baseSigningKey}.pub`;
 export const defaultHost = 'https://capgo.app'
 export const defaultApiHost = 'https://api.capgo.app'
 export const defaultHostWeb = 'https://web.capgo.app'
@@ -250,6 +252,7 @@ interface Config {
                     channelUrl?: string;
                     updateUrl?: string;
                     privateKey?: string;
+                    signingKey?: string;
                 }
             }
             server: {
